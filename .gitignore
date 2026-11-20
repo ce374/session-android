@@ -20,7 +20,6 @@ pkcs11.password
 app/play
 app/huawei
 release-creds.toml
-scripts/__pycache__
-
-!/scripts/drone-static-upload.sh
-!/scripts/drone-upload-exists.sh
+# Build outputs
+*.apk
+*.aab
