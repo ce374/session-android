@@ -26,12 +26,12 @@ class RemoteFileFetcher @AssistedInject constructor(
     private val avatarDownloadManager: AvatarDownloadManager,
 ) : Fetcher {
     override suspend fun fetch(): FetchResult? {
-        // Demo/local avatar support: an Encrypted RemoteFile with an empty key is treated as a
-        // plain (unencrypted) image whose URL is a file:// or content:// URI. This lets the
-        // conference-demo backup bundle real avatar images and display them offline, bypassing
-        // the file-server fetch+decrypt pipeline.
-        if (file is RemoteFile.Encrypted && file.key.data.isEmpty()) {
-            return fetchPlainAvatar(file.url)
+        // Demo/local avatar support: an Encrypted RemoteFile whose URL uses the "demo-avatar://"
+        // scheme is a plain local image bundled by the conference-demo backup ZIP. We load it
+        // directly from the cache dir, bypassing the file-server fetch+decrypt pipeline. The key
+        // is non-empty (so libsession treats it as a valid profile picture) but never used here.
+        if (file is RemoteFile.Encrypted && file.url.startsWith("demo-avatar://")) {
+            return fetchDemoAvatar(file.url)
         }
 
         val downloadedFile = AvatarDownloadManager.computeFileName(context, file)
@@ -58,21 +58,12 @@ class RemoteFileFetcher @AssistedInject constructor(
         )
     }
 
-    private fun fetchPlainAvatar(url: String): FetchResult {
-        val uri = android.net.Uri.parse(url)
-        val source = when (uri.scheme?.lowercase()) {
-            "file" -> {
-                val path = uri.path ?: throw RuntimeException("No path in file URI: $url")
-                java.io.File(path).source().buffer()
-            }
-            "content" -> {
-                context.contentResolver.openInputStream(uri)?.source()?.buffer()
-                    ?: throw RuntimeException("Cannot open content URI: $url")
-            }
-            else -> throw RuntimeException("Unsupported plain avatar scheme: $url")
-        }
+    private fun fetchDemoAvatar(url: String): FetchResult {
+        val name = url.removePrefix("demo-avatar://")
+        val file = java.io.File(context.cacheDir, "demo_avatars/$name")
+        if (!file.exists()) throw RuntimeException("Demo avatar not found: $file")
         return SourceFetchResult(
-            source = ImageSource(source = source, fileSystem = FileSystem.SYSTEM, metadata = null),
+            source = ImageSource(source = file.source().buffer(), fileSystem = FileSystem.SYSTEM, metadata = null),
             mimeType = null,
             dataSource = DataSource.DISK
         )

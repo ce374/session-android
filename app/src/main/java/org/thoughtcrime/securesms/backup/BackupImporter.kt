@@ -129,7 +129,10 @@ object BackupImporter {
             // empty-key Encrypted RemoteFile as a plain local image and loads it directly.
             val avatarFile = c.profilePictureLocal?.let { avatarFiles[it] }
             val profilePic = if (avatarFile != null && avatarFile.exists()) {
-                UserPic(Uri.fromFile(avatarFile).toString(), ByteArray(0))
+                // Use a demo-avatar:// URL (recognised by RemoteFileFetcher) with a non-empty
+                // 32-byte key so libsession stores it as a valid profile picture. The fetcher loads
+                // the bundled image directly from the cache dir; the key is never used for decryption.
+                UserPic("demo-avatar://${avatarFile.name}", ByteArray(32))
             } else {
                 UserPic.DEFAULT
             }
