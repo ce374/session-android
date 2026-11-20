@@ -1394,9 +1394,11 @@
     <string name="sessionAppearance">Appearance</string>
     <string name="sessionAdditional">Additional</string>
     <string name="sessionBackupImport">Backup Import</string>
-    <string name="sessionBackupExport">Backup Export</string>
-    <string name="sessionBackupImportDescription">Restore messages and attachments from a backup file.</string>
-    <string name="sessionBackupExportDescription">Save a backup of your messages and attachments.</string>
+    <string name="sessionBackupExport">Backup Export (ZIP)</string>
+    <string name="sessionBackupExportJson">Backup Export (JSON)</string>
+    <string name="sessionBackupImportDescription">Restore messages and attachments from a JSON or ZIP backup file.</string>
+    <string name="sessionBackupExportDescription">Full ZIP backup: conversations, profile data, and attachment binaries (images, gifs, etc.).</string>
+    <string name="sessionBackupExportJsonDescription">Lightweight JSON backup: conversations and metadata only (attachments referenced by URL).</string>
     <string name="sessionClearData">Clear Data</string>
     <string name="sessionConversations">Conversations</string>
     <string name="sessionHelp">Help</string>

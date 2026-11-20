@@ -60,5 +60,18 @@ fun AdditionalSettingsScreen(
             }
             Spacer(modifier = Modifier.height(LocalDimensions.current.smallSpacing))
         }
+
+        item {
+            CategoryCell(modifier = Modifier) {
+                ActionRowItem(
+                    title = annotatedStringResource(R.string.sessionBackupExportJson),
+                    onClick = { activity.launchExportJsonPicker() },
+                    qaTag = R.string.qa_settings_item_backup_export,
+                    modifier = Modifier.fillMaxWidth(),
+                    subtitle = annotatedStringResource(R.string.sessionBackupExportJsonDescription),
+                )
+            }
+            Spacer(modifier = Modifier.height(LocalDimensions.current.smallSpacing))
+        }
     }
 }

@@ -27,7 +27,7 @@ configurations.configureEach {
 }
 
 val canonicalVersionCode = 457
-val canonicalVersionName = "1.33.9"
+val canonicalVersionName = "1.33.10"
 
 val postFixSize = 10
 val abiPostFix = mapOf(
@@ -209,7 +209,7 @@ android {
             enablePermissiveNetworkSecurityConfig(true)
             enableClientVersionCheck(false)
 
-            setAlternativeAppName("Session QA")
+            setAlternativeAppName(null)
             setAuthorityPostfix("")
         }
 
@@ -219,7 +219,7 @@ android {
             devNetDefaultOn(true)
             allowQaLaunchConfig(true)
             enableClientVersionCheck(false)
-            setAlternativeAppName("Session AQA")
+            setAlternativeAppName(null)
         }
 
         getByName("debug") {

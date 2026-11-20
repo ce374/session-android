@@ -92,6 +92,16 @@ data class MessageInfo(
     val timestamp: Long,
     val hasMention: Boolean = false,
     val attachments: List<AttachmentInfo> = emptyList(),
+    /** Call message kind, when this is a call log entry. One of "missed"/"incoming"/"outgoing"/"first_missed". */
+    val callType: String? = null,
+    /** Disappearing-message lifetime in seconds, if set. */
+    val expiresInSeconds: Long? = null,
+    /** When disappearing countdown started (epoch ms), if set. */
+    val expireStartedAt: Long? = null,
+    /** True if this is an open-group invitation control message. */
+    val isOpenGroupInvitation: Boolean = false,
+    /** True if this is a message-request-response control message. */
+    val isMessageRequestResponse: Boolean = false,
 )
 
 @Serializable

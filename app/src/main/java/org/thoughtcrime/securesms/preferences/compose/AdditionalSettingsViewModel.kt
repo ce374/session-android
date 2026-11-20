@@ -66,8 +66,28 @@ class AdditionalSettingsViewModel @Inject constructor(
                     mmsSmsDb = mmsSmsDatabase,
                     attachmentDb = attachmentDatabase,
                     outputUri = uri,
+                    produceZip = true,
                 )
                 "Exported ${r.contacts} contacts, ${r.chats} chats, ${r.messages} messages, ${r.attachments} attachments."
+            }.getOrElse { "Export failed: ${it.message ?: it.toString()}" }
+            _events.emit(message)
+        }
+    }
+
+    fun handleBackupExportJson(uri: Uri) {
+        viewModelScope.launch {
+            val message = runCatching {
+                val r = BackupExporter.export(
+                    context = context,
+                    configFactory = configFactory,
+                    recipientRepository = recipientRepository,
+                    threadDb = threadDatabase,
+                    mmsSmsDb = mmsSmsDatabase,
+                    attachmentDb = attachmentDatabase,
+                    outputUri = uri,
+                    produceZip = false,
+                )
+                "Exported ${r.contacts} contacts, ${r.chats} chats, ${r.messages} messages (JSON)."
             }.getOrElse { "Export failed: ${it.message ?: it.toString()}" }
             _events.emit(message)
         }

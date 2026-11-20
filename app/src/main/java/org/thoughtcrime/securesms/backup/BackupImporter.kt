@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import network.loki.messenger.libsession_util.PRIORITY_VISIBLE
 import network.loki.messenger.libsession_util.util.UserPic
+import org.session.libsession.messaging.calls.CallMessageType
 import org.session.libsession.messaging.messages.signal.IncomingMediaMessage
 import org.session.libsession.messaging.messages.signal.IncomingTextMessage
 import org.session.libsession.messaging.messages.signal.OutgoingTextMessage
@@ -142,7 +143,23 @@ object BackupImporter {
 
             for (m in chat.messages) {
                 val ok = runCatching {
+                    val expiresIn = m.expiresInSeconds ?: 0L
+                    val expireStarted = m.expireStartedAt ?: 0L
                     when {
+                        m.callType != null && m.direction == "incoming" -> {
+                            val cmt = mapCallType(m.callType)
+                            if (cmt != null) {
+                                val incoming = IncomingTextMessage(
+                                    callMessageType = cmt,
+                                    sender = address,
+                                    group = null,
+                                    sentTimestampMillis = m.timestamp,
+                                    expiresInMillis = expiresIn,
+                                    expireStartedAt = expireStarted,
+                                )
+                                smsDb.insertMessageInbox(incoming, threadId, m.timestamp)
+                            }
+                        }
                         m.direction == "incoming" && m.type == "media" -> {
                             val attachments = m.attachments.mapNotNull { buildAttachment(it, mediaFiles) }
                             if (attachments.isEmpty() && m.body.isNullOrBlank()) {
@@ -151,9 +168,9 @@ object BackupImporter {
                                 val mediaMsg = IncomingMediaMessage(
                                     from = address,
                                     sentTimeMillis = m.timestamp,
-                                    expiresIn = 0L,
-                                    expireStartedAt = 0L,
-                                    isMessageRequestResponse = false,
+                                    expiresIn = expiresIn,
+                                    expireStartedAt = expireStarted,
+                                    isMessageRequestResponse = m.isMessageRequestResponse,
                                     hasMention = m.hasMention,
                                     body = m.body,
                                     group = null,
@@ -175,11 +192,11 @@ object BackupImporter {
                                 sentTimestampMillis = m.timestamp,
                                 group = null,
                                 push = true,
-                                expiresInMillis = 0L,
-                                expireStartedAt = 0L,
+                                expiresInMillis = expiresIn,
+                                expireStartedAt = expireStarted,
                                 callType = -1,
                                 hasMention = m.hasMention,
-                                isOpenGroupInvitation = false,
+                                isOpenGroupInvitation = m.isOpenGroupInvitation,
                                 isSecureMessage = true,
                                 proFeatures = emptySet(),
                             )
@@ -190,8 +207,8 @@ object BackupImporter {
                             val outgoing = OutgoingTextMessage(
                                 message = visible,
                                 recipient = address,
-                                expiresInMillis = 0L,
-                                expireStartedAtMillis = 0L,
+                                expiresInMillis = expiresIn,
+                                expireStartedAtMillis = expireStarted,
                             )
                             smsDb.insertMessageOutbox(threadId, outgoing, m.timestamp)
                         }
@@ -210,6 +227,14 @@ object BackupImporter {
             messages = insertedMessages,
             attachments = insertedAttachments,
         )
+    }
+
+    private fun mapCallType(kind: String): CallMessageType? = when (kind) {
+        "missed" -> CallMessageType.CALL_MISSED
+        "incoming" -> CallMessageType.CALL_INCOMING
+        "outgoing" -> CallMessageType.CALL_OUTGOING
+        "first_missed" -> CallMessageType.CALL_FIRST_MISSED
+        else -> null
     }
 
     private fun buildAttachment(info: AttachmentInfo, mediaFiles: Map<String, File>): Attachment? {

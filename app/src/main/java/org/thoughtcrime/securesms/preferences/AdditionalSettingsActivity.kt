@@ -21,6 +21,10 @@ class AdditionalSettingsActivity : FullComposeScreenLockActivity() {
         uri?.let { viewModel.handleBackupExport(it) }
     }
 
+    private val exportJsonLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument()) { uri ->
+        uri?.let { viewModel.handleBackupExportJson(it) }
+    }
+
     fun launchImportPicker() {
         runCatching { importLauncher.launch(arrayOf("*/*")) }
     }
@@ -28,6 +32,11 @@ class AdditionalSettingsActivity : FullComposeScreenLockActivity() {
     fun launchExportPicker() {
         val name = "session-backup-${System.currentTimeMillis()}.zip"
         runCatching { exportLauncher.launch(name) }
+    }
+
+    fun launchExportJsonPicker() {
+        val name = "session-backup-${System.currentTimeMillis()}.json"
+        runCatching { exportJsonLauncher.launch(name) }
     }
 
     @Composable
