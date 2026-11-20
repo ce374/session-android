@@ -62,7 +62,8 @@ object BackupImporter {
             ?: error("Unable to read backup from $inputUri")
 
         val model: BackupModel
-        val mediaFiles: Map<String, File> // local path -> extracted temp file
+        val mediaFiles: Map<String, File>   // media/* -> temp file (deleted after import; DB copies bytes)
+        val avatarFiles: Map<String, File>  // avatars/* -> stable file (kept in cache for display)
 
         if (bytes.isNotEmpty() && bytes[0] == '{'.code.toByte()) {
             // Standalone JSON.
@@ -71,9 +72,12 @@ object BackupImporter {
                 String(bytes, Charsets.UTF_8),
             )
             mediaFiles = emptyMap()
+            avatarFiles = emptyMap()
         } else {
-            // ZIP: backup.json + media/* (+ avatars/*).
+            // ZIP: backup.json + media/* + avatars/*.
             val media = mutableMapOf<String, File>()
+            val avatars = mutableMapOf<String, File>()
+            val avatarDir = File(context.cacheDir, "demo_avatars").apply { mkdirs() }
             var parsed: BackupModel? = null
             ZipInputStream(ByteArrayInputStream(bytes)).use { zis ->
                 while (true) {
@@ -85,11 +89,18 @@ object BackupImporter {
                                 zis.readBytes().toString(Charsets.UTF_8),
                             )
                         }
-                        entry.name.startsWith("${BackupFormat.MEDIA_DIR}/") ||
-                                entry.name.startsWith("${BackupFormat.AVATARS_DIR}/") -> {
+                        entry.name.startsWith("${BackupFormat.MEDIA_DIR}/") -> {
                             val tmp = File.createTempFile("imp_", ".bin", context.cacheDir)
                             tmp.outputStream().use { out -> zis.copyTo(out) }
                             media[entry.name] = tmp
+                        }
+                        entry.name.startsWith("${BackupFormat.AVATARS_DIR}/") -> {
+                            // Avatars are extracted to a stable cache dir and KEPT (not temp) so the
+                            // avatar fetcher can read them by file:// URI for display.
+                            val base = entry.name.substringAfterLast('/')
+                            val stable = File(avatarDir, base)
+                            stable.outputStream().use { out -> zis.copyTo(out) }
+                            avatars[entry.name] = stable
                         }
                     }
                     zis.closeEntry()
@@ -97,6 +108,7 @@ object BackupImporter {
             }
             model = parsed ?: error("Backup ZIP is missing ${BackupFormat.JSON_ENTRY_NAME}")
             mediaFiles = media
+            avatarFiles = avatars
         }
 
         var insertedContacts = 0
@@ -112,6 +124,16 @@ object BackupImporter {
             val address = runCatching { Address.Standard(AccountId(c.sessionId)) }.getOrNull()
                 ?: continue
 
+            // If the backup bundles a local avatar for this contact, point the profile picture at
+            // the extracted file via a file:// URI with an empty key. RemoteFileFetcher treats an
+            // empty-key Encrypted RemoteFile as a plain local image and loads it directly.
+            val avatarFile = c.profilePictureLocal?.let { avatarFiles[it] }
+            val profilePic = if (avatarFile != null && avatarFile.exists()) {
+                UserPic(Uri.fromFile(avatarFile).toString(), ByteArray(0))
+            } else {
+                UserPic.DEFAULT
+            }
+
             configFactory.withMutableUserConfigs { configs ->
                 configs.contacts.upsertContact(address) {
                     name = c.name.orEmpty()
@@ -120,9 +142,7 @@ object BackupImporter {
                     approvedMe = c.approvedMe
                     blocked = c.blocked
                     priority = PRIORITY_VISIBLE
-                    // v1 demo: monogram avatar (offline-safe). The recorded URL is preserved in the
-                    // backup JSON for future online display.
-                    profilePicture = UserPic.DEFAULT
+                    profilePicture = profilePic
                     createdEpochSeconds = System.currentTimeMillis() / 1000
                 }
             }
