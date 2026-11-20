@@ -101,7 +101,7 @@ object BackupExporter {
                             mediaEntries += MediaEntry(localPath, aid)
                             AttachmentInfo(
                                 contentType = att.contentType,
-                                fileName = att.fileName,
+                                fileName = att.filename,
                                 size = att.size,
                                 width = att.width,
                                 height = att.height,
@@ -167,7 +167,7 @@ object BackupExporter {
     }
 
     private fun extensionFor(att: DatabaseAttachment): String {
-        att.fileName?.substringAfterLast('.', missingDelimiterValue = "")?.takeIf { it.isNotBlank() }
+        att.filename?.substringAfterLast('.', missingDelimiterValue = "")?.takeIf { it.isNotBlank() }
             ?.let { return it.lowercase() }
         // Derive from content type, e.g. "image/jpeg" -> "jpg"
         val sub = att.contentType.substringAfter('/', missingDelimiterValue = "")
