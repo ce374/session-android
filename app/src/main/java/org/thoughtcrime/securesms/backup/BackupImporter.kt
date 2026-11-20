@@ -16,7 +16,7 @@ import org.session.libsession.utilities.Address
 import org.session.libsession.utilities.upsertContact
 import org.session.libsession.utilities.withMutableUserConfigs
 import org.session.libsignal.utilities.AccountId
-import org.thoughtcrime.securesms.database.ConfigFactory
+import org.thoughtcrime.securesms.dependencies.ConfigFactory
 import org.thoughtcrime.securesms.database.MmsDatabase
 import org.thoughtcrime.securesms.database.RecipientSettingsDatabase
 import org.thoughtcrime.securesms.database.SmsDatabase

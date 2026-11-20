@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import org.thoughtcrime.securesms.backup.BackupExporter
 import org.thoughtcrime.securesms.backup.BackupImporter
 import org.thoughtcrime.securesms.database.AttachmentDatabase
-import org.thoughtcrime.securesms.database.ConfigFactory
+import org.thoughtcrime.securesms.dependencies.ConfigFactory
 import org.thoughtcrime.securesms.database.MmsDatabase
 import org.thoughtcrime.securesms.database.MmsSmsDatabase
 import org.thoughtcrime.securesms.database.RecipientRepository
