@@ -1392,6 +1392,11 @@
     <string name="sent">Sent:</string>
     <string name="serverWide">Server Wide</string>
     <string name="sessionAppearance">Appearance</string>
+    <string name="sessionAdditional">Additional</string>
+    <string name="sessionBackupImport">Backup Import</string>
+    <string name="sessionBackupExport">Backup Export</string>
+    <string name="sessionBackupImportDescription">Restore messages and attachments from a backup file.</string>
+    <string name="sessionBackupExportDescription">Save a backup of your messages and attachments.</string>
     <string name="sessionClearData">Clear Data</string>
     <string name="sessionConversations">Conversations</string>
     <string name="sessionHelp">Help</string>

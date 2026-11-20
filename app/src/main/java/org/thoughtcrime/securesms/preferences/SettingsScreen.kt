@@ -704,6 +704,15 @@ fun Buttons(
 
         Cell {
             Column {
+                ItemButton(annotatedStringResource(R.string.sessionAdditional),
+                    R.drawable.ic_baseline_folder_24, Modifier.qaTag(R.string.AccessibilityId_sessionAdditional)) { activity?.push<AdditionalSettingsActivity>() }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(LocalDimensions.current.xsSpacing))
+
+        Cell {
+            Column {
                 // Only show the recovery password option if the user has not chosen to permanently hide it
                 if (!recoveryHidden) {
                     ItemButton(

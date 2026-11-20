@@ -170,6 +170,9 @@
         <activity
             android:name="org.thoughtcrime.securesms.preferences.HelpSettingsActivity"
             android:label="@string/sessionHelp"/>
+        <activity
+            android:name="org.thoughtcrime.securesms.preferences.AdditionalSettingsActivity"
+            android:label="@string/sessionAdditional" />
         <activity android:name="org.thoughtcrime.securesms.preferences.appearance.AppearanceSettingsActivity" />
         <activity android:name="org.thoughtcrime.securesms.groups.GroupMembersActivity"
             android:theme="@style/Theme.Session.DayNight.NoActionBar" />

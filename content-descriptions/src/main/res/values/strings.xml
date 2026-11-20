@@ -234,6 +234,7 @@
     <string name="AccessibilityId_modalMessage">Modal description</string>
     <!--Settings Page-->
     <string name="AccessibilityId_sessionAppearance">Appearance</string>
+    <string name="AccessibilityId_sessionAdditional">Additional</string>
     <string name="AccessibilityId_apply">Apply</string>
     <string name="AccessibilityId_cancel">Cancel</string>
     <string name="AccessibilityId_sessionClearData">Clear data</string>
@@ -255,6 +256,8 @@
     <string name="AccessibilityId_setButton">Set button</string>
     <string name="AccessibilityId_displayName">Display name</string>
     <string name="qa_settings_item_session_network">session-network-menu-item</string>
+    <string name="qa_settings_item_backup_import">backup-import-menu-item</string>
+    <string name="qa_settings_item_backup_export">backup-export-menu-item</string>
     <string name="qa_settings_item_donate">donate-menu-item</string>
     <string name="qa_settings_item_path">path-menu-item</string>
     <string name="qa_settings_item_pro">pro-menu-item</string>
